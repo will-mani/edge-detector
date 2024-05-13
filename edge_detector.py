@@ -6,26 +6,31 @@ import cv2
 ### Once you run the program, use the trackbars in the two windows that pop up to
 ### set the desired values for kernal_size (for image blurring), 
 ### factor (x times bigger than the original), and threshold (for determining edges).
-### Press the enter key once you have set all three values.
+### Press the enter key once you have set all three values. To exit the program, hit the esc(ape) key.
 ### Have fun experimenting (and no need to be alarmed if the screen is blank at first; see last line of __init__ method to understand why)!
 
 class edge_detector():
     def __init__(self, original_image): 
         self.original_image = original_image
         self.original_grayscale = cv2.cvtColor(self.original_image, cv2.COLOR_BGR2GRAY)
-        self.kernal_size = 1
+        self.kernal_size = 0
         self.blurred_grayscale = self.original_grayscale
         self.factor = 1
         self.resized_blurred_grayscale = self.blurred_grayscale
-        self.threshold = 1
-        self.edges_image = np.ones(self.blurred_grayscale.shape, dtype=np.uint8) * 255
+        self.threshold = 0
+        self.edges_image = np.zeros(self.blurred_grayscale.shape, dtype=np.uint8)
         
 
     def blur_grayscale(self, kernal_size, factor, threshold):
         self.kernal_size = kernal_size
-        self.blurred_grayscale = cv2.blur(self.original_grayscale, (kernal_size, kernal_size))
-
-        print("Blurred grayscal with kernal size", kernal_size, "by", kernal_size)
+    
+        if kernal_size < 1:
+            self.blurred_grayscale = self.original_grayscale
+            print("Original grayscale; no blurring involved")
+        else:
+            self.blurred_grayscale = cv2.blur(self.original_grayscale, (kernal_size, kernal_size))
+            print("Blurred grayscale with kernal size", kernal_size, "by", kernal_size)
+        
         self.resize_blurred_grayscale(factor, threshold)
 
 
@@ -65,15 +70,15 @@ class edge_detector():
         vertical_edges = np.array(np.abs(vertical_differences), dtype=np.uint8)
         vertical_edges_coors = np.where(vertical_edges >= threshold)[0], np.where(vertical_edges >= threshold)[1]
 
-        resized_edges_image = np.ones(self.resized_blurred_grayscale.shape, dtype=np.uint8) * 255
+        resized_edges_image = np.ones(self.resized_blurred_grayscale.shape, dtype=np.uint8) * 255 # image_height by image_width matrix full of 255's
         resized_edges_image[horizontal_edges_coors] = 0
         resized_edges_image[vertical_edges_coors] = 0
 
         display_edges_image = resized_edges_image.copy()
 
-        ## The cv2 display might take up the whole screen unless the code snippet below for getting back to the original size is uncommented
+        ### The cv2 display might take up the whole screen unless the code snippet below for getting back to the original size is uncommented
         original_height, original_width = self.original_grayscale.shape
-        display_factor = cv2.getTrackbarPos('Factor', 'Edges') 
+        display_factor = self.factor
         while display_factor > 1:
             display_factor -= 1
             display_width, display_height = original_width * display_factor, original_height * display_factor
@@ -88,19 +93,17 @@ image = cv2.imread(image_path)
 detector = edge_detector(image)
 
 
-def nothing(x): 
+def do_nothing(trackbar_value): 
     pass
 
 cv2.namedWindow('Blurred Grayscale') 
-cv2.createTrackbar('Kernal Size', 'Blurred Grayscale', 1, 14, nothing) 
-cv2.setTrackbarMin('Kernal Size', 'Blurred Grayscale', 1) # The trackbar minimum is 0 without this line 
+cv2.createTrackbar('Kernal Size', 'Blurred Grayscale', 0, 15, do_nothing)
 
 cv2.namedWindow('Edges') 
-cv2.createTrackbar('Factor', 'Edges', 1, 15, nothing)
+cv2.createTrackbar('Factor', 'Edges', 1, 15, do_nothing) # The trackbar is initially set to 1. The minimum (0 by default) is not set here
 cv2.setTrackbarMin('Factor', 'Edges', 1) # The trackbar minimum is set to 0 without this line
-cv2.createTrackbar('Threshold', 'Edges', 1, 254, nothing)  
-cv2.setTrackbarMin('Threshold', 'Edges', 1) # The trackbar minimum is 0 without this line
-  
+cv2.createTrackbar('Threshold', 'Edges', 0, 255, do_nothing)
+
 while(True): 
     cv2.imshow('Blurred Grayscale', detector.blurred_grayscale) 
     cv2.imshow('Edges', detector.edges_image) 

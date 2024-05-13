@@ -1,0 +1,1 @@
+The images in this folder were produced by first blurring the original grayscale (using the averaging technique - cv2.blur), resizing the blurred image, identifying the edges in the resized image, then resizing the edges image to the size of the original grayscale (one factor at a time). The naming convention is 'Blur[KERNAL_SIZE]Threshold[THRESHOLD]Edges[FACTOR].png'.

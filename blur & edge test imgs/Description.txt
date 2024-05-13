@@ -1,0 +1,1 @@
+The images in this folder were produced by first blurring the original grayscale (cv2.blur), resizing the blurred image, then determining the edges in the resized image. Thus, these images were not resized to the shape of the original grayscale. The naming convention is 'Blur[KERNAL_SIZE]Edges[FACTOR].png'. The edge detection threshold for every image in this folder is 14.
