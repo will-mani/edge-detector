@@ -1,1 +1,1 @@
-# edge-dector
+# edge-detector
